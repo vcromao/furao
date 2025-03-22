@@ -2,7 +2,7 @@ Package: furao
 Title: Framework for Unattended Rolling Analysis Orchestration
 Version: 0.0.0.9000
 Authors@R: 
-    person("Vinícius", "Romão", role = c("aut", "cre"))
+    person("Vinícius", "Romão", email = "vcsilvaromao@gmail.com", role = c("aut", "cre"))
 Description: Provides functions to simplify rolling beta calculations.
 License: `use_mit_license()`
 Encoding: UTF-8
