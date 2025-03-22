@@ -85,7 +85,7 @@
 #'
 #' @return A list
 #' @export
-#'
+#' 
 get_rolling_betas <- function(
     data,
     .dates_col = "ref_date",
@@ -139,11 +139,11 @@ get_rolling_betas <- function(
         .calculate_returns(tickers = {{.tickers_col}}, dates = {{.dates_col}}, prices = {{.prices_col}}, returns = ".return")
 
     portfolio_returns <- returns %>%
-        dplyr::left_join(weights_tbl) %>%
+        dplyr::left_join(weights_tbl, by = "ticker") %>%
         dplyr::mutate(.return = .return * .weight) %>%
         tidyr::pivot_wider(id_cols = .dates_col, names_from = dplyr::all_of(.tickers_col), values_from = ".return") %>%
         dplyr::mutate(.return = rowSums(dplyr::across(dplyr::all_of(.portfolio_tickers)))) %>%
-        dplyr::mutate(.return = replace(.return, row_number() == 1, NA_real_)) %>%
+        dplyr::mutate(.return = replace(.return, dplyr::row_number() == 1, NA_real_)) %>%
         dplyr::select(- .portfolio_tickers) %>%
         tidyr::drop_na()
     
