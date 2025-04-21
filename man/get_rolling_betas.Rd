@@ -18,7 +18,7 @@ get_rolling_betas(
   .date_lb = NULL,
   .date_ub = NULL,
   .beta_adj = NULL,
-  .diagnostics = FALSE
+  .diagnostics = "all"
 )
 }
 \arguments{
@@ -48,7 +48,7 @@ get_rolling_betas(
 
 \item{.beta_adj}{Adjust method for Beta. (not implemented yet, will raise an error if filled.)}
 
-\item{.diagnostics}{Returns plots and test statistics.}
+\item{.diagnostics}{Returns plots and test statistics. Set to FALSE to turn off. (default = "all")}
 }
 \value{
 A list

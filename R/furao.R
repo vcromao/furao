@@ -266,3 +266,79 @@ get_rolling_betas <- function(
     
     retval
 }
+
+#' Prints relevant `get_rolling_betas()` results to an Excel Workbook.
+#'
+#' @param furao_obj A list as returned by `get_rolling_betas()`
+#'
+#' @export
+#'
+excel_out <- function(
+    furao_obj,
+    .table_filename
+) {
+    wb <- openxlsx::createWorkbook()
+    openxlsx::addWorksheet(wb, "Summary")
+    openxlsx::addWorksheet(wb, "Returns")
+    openxlsx::addWorksheet(wb, "Betas")
+    openxlsx::addWorksheet(wb, "Diagnostics")
+    
+    
+    call_str <- furao_obj$call %>%
+        deparse %>%
+        paste(collapse = "")
+    openxlsx::writeData(wb, sheet = "Summary", x = c("Call"), xy = c(1, 1))
+    openxlsx::writeData(wb, sheet = "Summary", x = call_str, xy = c(1, 2))
+    
+    openxlsx::writeData(wb, sheet = "Summary", x = c("Market Proxy"), xy = c(1, 4))
+    openxlsx::writeData(wb, sheet = "Summary", x = furao_obj$market, xy = c(1, 5))
+    openxlsx::writeData(wb, sheet = "Summary", x = c("Portfolio"), xy = c(1, 7))
+    openxlsx::writeData(wb, sheet = "Summary", x = furao_obj$portfolio, xy = c(1, 8))
+    
+    openxlsx::writeData(wb, sheet = "Returns", x = furao_obj$returns)
+    openxlsx::writeData(wb, sheet = "Betas", x = furao_obj$betas)
+    
+    
+    header <- c("Test", "Statistic", "P-Value")
+    sw <- furao_obj$shapiro
+    adf <- furao_obj$adf
+    res <- tibble::tibble(
+        "Test" = c(sw$method, adf$method),
+        "Statistic" = c(sw$statistic, adf$statistic),
+        "P-Value" = c(sw$p.value, adf$p.value)
+        )
+    openxlsx::writeData(wb, sheet = "Diagnostics", x = res)
+    
+    openxlsx::writeData(wb, sheet = "Diagnostics", x = c("ACF"), xy = c(6, 1))
+    openxlsx::writeData(wb, sheet = "Diagnostics", x = furao_obj$acf, xy = c(6, 2))
+    
+    openxlsx::writeData(wb, sheet = "Diagnostics", x = c("PACF"), xy = c(9, 1))
+    openxlsx::writeData(wb, sheet = "Diagnostics", x = furao_obj$pacf, xy = c(9, 2))
+    
+    t1 <- tempfile(fileext = ".png")
+    #png(t1, width = 800, height = 600)
+    ggplot2::ggsave(filename = t1, plot = furao_obj$ts_plot, bg = "white")
+    #dev.off()
+    openxlsx::insertImage(wb, sheet = "Diagnostics", file = t1, startRow = 20, startCol = 1)
+    t2 <- tempfile(fileext = ".png")
+    #png(t2, width = 800, height = 600)
+    ggplot2::ggsave(filename = t2, plot = furao_obj$dens_plot, bg = "white")
+    #dev.off()
+    openxlsx::insertImage(wb, sheet = "Diagnostics", file = t2, startRow = 35, startCol = 1)
+    t3 <- tempfile(fileext = ".png")
+    #png(t3, width = 800, height = 600)
+    ggplot2::ggsave(filename = t3, plot = furao_obj$acf_plot, bg = "white")
+    #dev.off()
+    openxlsx::insertImage(wb, sheet = "Diagnostics", file = t3, startRow = 20, startCol = 10)
+    t4 <- tempfile(fileext = ".png")
+    #png(t4, width = 800, height = 600)
+    ggplot2::ggsave(filename = t4, plot = furao_obj$pacf_plot, bg = "white")
+    #dev.off()
+    openxlsx::insertImage(wb, sheet = "Diagnostics", file = t4, startRow = 35, startCol = 10)
+    
+    openxlsx::saveWorkbook(wb, .table_filename)
+    unlink(t4)
+    unlink(t3)
+    unlink(t2)
+    unlink(t1)
+}
