@@ -201,8 +201,8 @@ get_rolling_betas <- function(
     if("acf" %in% .diagnostics) {
         acf_val <- acf(betas$beta, plot = FALSE)
         acf_data <- tibble::tibble(
-            lag = acf_val$lag[, 1],
-            acf = acf_val$acf[, 1]
+            lag = c(acf_val$lag),
+            acf = c(acf_val$acf)
         )
         acf_plot <- ggplot2::ggplot(acf_data, aes(x = lag, y = acf)) +
             ggplot2::geom_bar(stat = "identity", fill = "black") +
@@ -218,8 +218,8 @@ get_rolling_betas <- function(
     if("pacf" %in% .diagnostics) {
         pacf_val <- pacf(betas$beta, plot = FALSE)
         pacf_data <- tibble::tibble(
-            lag = pacf_val$lag[, 1],
-            pacf = pacf_val$pacf[, 1]
+            lag = c(pacf_val$lag),
+            pacf = c(pacf_val$acf)
         )
         pacf_plot <- ggplot2::ggplot(pacf_data, aes(x = lag, y = pacf)) +
             ggplot2::geom_bar(stat = "identity", fill = "black") +
