@@ -209,16 +209,16 @@ get_rolling_betas <- function(
         dplyr::left_join(portfolio_returns[c(.dates_col, ".return")], by = .dates_col) %>%
         tidyr::drop_na()
     retval$betas <- betas
-    if (exists(shapiro)) {
+    if("sw" %in% .diagnostics) {
         retval$shapiro <- shapiro
     }
-    if (exists(adf)) {
+    if("adf" %in% .diagnostics) {
         retval$adf <- adf
     }
-    if (exists(ts_plot)) {
+    if("ts_plot" %in% .diagnostics) {
         retval$ts_plot <- ts_plot
     }
-    if (exists(dens_plot)) {
+    if("dens_plot" %in% .diagnostics) {
         retval$dens_plot <- dens_plot
     }
     
