@@ -81,7 +81,7 @@
 #' @param .date_lb Begin point for which the data.frame is truncated for. (inclusive. If left empty will use the entire dataset)
 #' @param .date_ub End point for which the data.frame is truncated for. (inclusive. If left empty will use the entire dataset)
 #' @param .beta_adj Adjust method for Beta. (not implemented yet, will raise an error if filled.)
-#' @param .diagnostics Returns plots and test statistics.
+#' @param .diagnostics Returns plots and test statistics. Set to FALSE to turn off. (default = "all")
 #'
 #' @return A list
 #' @export
@@ -100,8 +100,9 @@ get_rolling_betas <- function(
     .date_lb = NULL,
     .date_ub = NULL,
     .beta_adj = NULL,
-    .diagnostics = FALSE
+    .diagnostics = "all"
 ) {
+    # dealing with necessary adjustments for default parameters
     if(!is.null(.beta_adj)) {
         stop("Adjusting via '.beta_adj' argument is not implemented yet.")
     }
@@ -125,6 +126,14 @@ get_rolling_betas <- function(
         .date_ub <- as.Date(.date_ub)
     }
     
+    if(.diagnostics == "all") {
+        .diagnostics <- c("sw", "ts_plot", "dens_plot", "adf", "acf", "pacf")
+    } else {
+        .diagnostics <- c(.diagnostics)
+    }
+    
+    
+    # subsets and computes the used data
     filtered_data <- data %>%
         dplyr::filter(
             .[[.tickers_col]] %in% c(.portfolio_tickers, .market_ticker)
@@ -147,12 +156,50 @@ get_rolling_betas <- function(
         dplyr::select(- .portfolio_tickers) %>%
         tidyr::drop_na()
     
+    
+    # compute our betas
     betas <- portfolio_returns %>%
         slider::slide_vec(~.x, .f = ~ .beta_fun(., portfolio_returns = ".return", market_returns = glue::backtick(.market_ticker)), .before = .observations - 1L, .complete = TRUE) %>%
         tibble::tibble(date = portfolio_returns[[.dates_col]], beta = .) %>%
         tidyr::drop_na()
     
     
+    # diagnostics
+    if("sw" %in% .diagnostics) {
+        shapiro <- stats::shapiro.test(betas$beta)
+    }
+    
+    if("adf" %in% .diagnostics) {
+        adf <- tseries::adf.test(betas$beta)
+    }
+    
+    if("ts_plot" %in% .diagnostics) {
+        ts_plot <- ggplot2::ggplot(betas, aes(x = date, y = beta)) +
+            ggplot2::geom_line(color = "lightblue", linewidth = 0.5) +
+            ggplot2::geom_point(color = "blue", size = 1) +
+            ggplot2::geom_hline(yintercept = 1, linetype = "dashed", color = "orange", linewidth = 0.5) +
+            ggplot2::labs(
+                title = "Time Series Plot of Betas",
+                x = "Date",
+                y = "Beta"
+            ) +
+            ggplot2::theme_minimal()
+    }
+    
+    if("dens_plot" %in% .diagnostics) {
+        dens_plot <- ggplot2::ggplot(betas, aes(x = beta)) +
+            ggplot2::geom_density(fill = "lightblue", color = "blue", alpha = 0.5) +
+            ggplot2::geom_vline(xintercept = 1, linetype = "dashed", color = "orange", linewidth = 0.5) + 
+            ggplot2::labs(
+                title = "Density Plot of Betas",
+                x = "Beta",
+                y = "Density"
+            ) +
+            ggplot2::theme_minimal()
+    }
+    
+    
+    # prepares our returned object
     retval <- list()
     retval$call <- match.call()
     retval$market <- .market_ticker
@@ -162,6 +209,18 @@ get_rolling_betas <- function(
         dplyr::left_join(portfolio_returns[c(.dates_col, ".return")], by = .dates_col) %>%
         tidyr::drop_na()
     retval$betas <- betas
+    if (exists(shapiro)) {
+        retval$shapiro <- shapiro
+    }
+    if (exists(adf)) {
+        retval$adf <- adf
+    }
+    if (exists(ts_plot)) {
+        retval$ts_plot <- ts_plot
+    }
+    if (exists(dens_plot)) {
+        retval$dens_plot <- dens_plot
+    }
     
     retval
 }
