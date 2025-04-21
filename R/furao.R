@@ -64,8 +64,6 @@
         .[[market_returns]]
 }
 
-# Essentially our main()
-
 #' Calculate Rolling Betas
 #'
 #' @param data Data frame in long format.
@@ -316,24 +314,16 @@ excel_out <- function(
     openxlsx::writeData(wb, sheet = "Diagnostics", x = furao_obj$pacf, xy = c(9, 2))
     
     t1 <- tempfile(fileext = ".png")
-    #png(t1, width = 800, height = 600)
     ggplot2::ggsave(filename = t1, plot = furao_obj$ts_plot, bg = "white")
-    #dev.off()
     openxlsx::insertImage(wb, sheet = "Diagnostics", file = t1, startRow = 20, startCol = 1)
     t2 <- tempfile(fileext = ".png")
-    #png(t2, width = 800, height = 600)
     ggplot2::ggsave(filename = t2, plot = furao_obj$dens_plot, bg = "white")
-    #dev.off()
     openxlsx::insertImage(wb, sheet = "Diagnostics", file = t2, startRow = 35, startCol = 1)
     t3 <- tempfile(fileext = ".png")
-    #png(t3, width = 800, height = 600)
     ggplot2::ggsave(filename = t3, plot = furao_obj$acf_plot, bg = "white")
-    #dev.off()
     openxlsx::insertImage(wb, sheet = "Diagnostics", file = t3, startRow = 20, startCol = 10)
     t4 <- tempfile(fileext = ".png")
-    #png(t4, width = 800, height = 600)
     ggplot2::ggsave(filename = t4, plot = furao_obj$pacf_plot, bg = "white")
-    #dev.off()
     openxlsx::insertImage(wb, sheet = "Diagnostics", file = t4, startRow = 35, startCol = 10)
     
     openxlsx::saveWorkbook(wb, .table_filename)
