@@ -11,6 +11,7 @@ RoxygenNote: 7.3.2.9000
 Depends:
     magrittr,
 Imports:
+    tibble,
     tidyr,
     dplyr,
     lubridate,

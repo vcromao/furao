@@ -198,6 +198,40 @@ get_rolling_betas <- function(
             ggplot2::theme_minimal()
     }
     
+    if("acf" %in% .diagnostics) {
+        acf_val <- acf(betas$beta, plot = FALSE)
+        acf_data <- tibble::tibble(
+            lag = acf_val$lag[, 1],
+            acf = acf_val$acf[, 1]
+        )
+        acf_plot <- ggplot2::ggplot(acf_data, aes(x = lag, y = acf)) +
+            ggplot2::geom_bar(stat = "identity", fill = "black") +
+            ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+            ggplot2::labs(
+                title = "Autocorrelation Function (ACF)",
+                x = "Lag",
+                y = "Autocorrelation"
+            ) +
+            ggplot2::theme_minimal()
+    }
+    
+    if("pacf" %in% .diagnostics) {
+        pacf_val <- pacf(betas$beta, plot = FALSE)
+        pacf_data <- tibble::tibble(
+            lag = pacf_val$lag[, 1],
+            pacf = pacf_val$pacf[, 1]
+        )
+        pacf_plot <- ggplot2::ggplot(pacf_data, aes(x = lag, y = pacf)) +
+            ggplot2::geom_bar(stat = "identity", fill = "black") +
+            ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+            ggplot2::labs(
+                title = "Partial Autocorrelation Function (PACF)",
+                x = "Lag",
+                y = "Partial Autocorrelation"
+            ) +
+            ggplot2::theme_minimal()
+    }
+    
     
     # prepares our returned object
     retval <- list()
@@ -220,6 +254,14 @@ get_rolling_betas <- function(
     }
     if("dens_plot" %in% .diagnostics) {
         retval$dens_plot <- dens_plot
+    }
+    if("acf" %in% .diagnostics) {
+        retval$acf <- acf_data
+        retval$acf_plot <- acf_plot
+    }
+    if("pacf" %in% .diagnostics) {
+        retval$pacf <- pacf_data
+        retval$pacf_plot <- pacf_plot
     }
     
     retval
