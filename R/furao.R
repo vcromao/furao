@@ -75,7 +75,7 @@
 #' @param .market_ticker Name of the ticker which the portfolio is being regressed against.
 #' @param .beta_fun Function definition of the Beta. (default = Sharpe's Beta)
 #' @param .observations Number of observations used to calculate each Beta. (default = 36L)
-#' @param .interval Desired frequency of returns: "daily", "weekly", "monthly", "yearly". (default = "month")
+#' @param .interval Desired frequency of returns: "day", "week", "month", "year". (default = "month")
 #' @param .date_lb Begin point for which the data.frame is truncated for. (inclusive. If left empty will use the entire dataset)
 #' @param .date_ub End point for which the data.frame is truncated for. (inclusive. If left empty will use the entire dataset)
 #' @param .beta_adj Adjust method for Beta. (not implemented yet, will raise an error if filled.)
@@ -172,7 +172,7 @@ get_rolling_betas <- function(
     }
     
     if("ts_plot" %in% .diagnostics) {
-        ts_plot <- ggplot2::ggplot(betas, aes(x = date, y = beta)) +
+        ts_plot <- ggplot2::ggplot(betas, ggplot2::aes(x = date, y = beta)) +
             ggplot2::geom_line(color = "lightblue", linewidth = 0.5) +
             ggplot2::geom_point(color = "blue", size = 1) +
             ggplot2::geom_hline(yintercept = 1, linetype = "dashed", color = "orange", linewidth = 0.5) +
@@ -185,7 +185,7 @@ get_rolling_betas <- function(
     }
     
     if("dens_plot" %in% .diagnostics) {
-        dens_plot <- ggplot2::ggplot(betas, aes(x = beta)) +
+        dens_plot <- ggplot2::ggplot(betas, ggplot2::aes(x = beta)) +
             ggplot2::geom_density(fill = "lightblue", color = "blue", alpha = 0.5) +
             ggplot2::geom_vline(xintercept = 1, linetype = "dashed", color = "orange", linewidth = 0.5) + 
             ggplot2::labs(
@@ -202,7 +202,7 @@ get_rolling_betas <- function(
             lag = c(acf_val$lag),
             acf = c(acf_val$acf)
         )
-        acf_plot <- ggplot2::ggplot(acf_data, aes(x = lag, y = acf)) +
+        acf_plot <- ggplot2::ggplot(acf_data, ggplot2::aes(x = lag, y = acf)) +
             ggplot2::geom_bar(stat = "identity", fill = "black") +
             ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
             ggplot2::labs(
@@ -219,7 +219,7 @@ get_rolling_betas <- function(
             lag = c(pacf_val$lag),
             pacf = c(pacf_val$acf)
         )
-        pacf_plot <- ggplot2::ggplot(pacf_data, aes(x = lag, y = pacf)) +
+        pacf_plot <- ggplot2::ggplot(pacf_data, ggplot2::aes(x = lag, y = pacf)) +
             ggplot2::geom_bar(stat = "identity", fill = "black") +
             ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
             ggplot2::labs(
